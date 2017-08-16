@@ -1,0 +1,57 @@
+# Server settings (ServerProperties)
+logging:
+ config: config/logback.xml
+ level.*: debug
+
+zookeeper:
+ connects: localhost:2181
+ baseSleepTimeMs: 1000
+ maxRetries: 3
+ marsRoot: alan
+
+cluster:
+  type: CENTER
+  name: C2
+  number: 1
+  useGate: false
+  tcpAddress:
+   port: 11100
+   host: localhost
+  httpAddress:
+   port: 8081
+   host: localhost
+  rpcAddress:
+   port: 11101
+   host: localhost
+
+center:
+ ipInfoUrl: http://ip.taobao.com/dao/getIpInfo.php
+
+tcp:
+ port: ${cluster.tcpAddress.port}
+ host: ${cluster.tcpAddress.host}
+tsdk:
+ url: http://localhost:9527/asdk
+ certifyPath: /user/verifyAccount
+ appKey: 18079e15c97443a20e5f017ab055d253
+
+server:
+ port: ${cluster.httpAddress.port}
+ address: 0.0.0.0
+ sessionTimeout: 30
+ contextPath: /center
+ 
+tomcat:
+ accessLogEnabled: false
+ protocolHeader: x-forwarded-proto
+ remoteIpHeader: x-forwarded-for
+ backgroundProcessorDelay: 30 # secs
+ 
+spring.data.mongodb.uri: mongodb://localhost:27017/miner-test-center
+
+spring.redis:
+  host: localhost
+  port: 6379
+  password: alan
+  database: 1
+    
