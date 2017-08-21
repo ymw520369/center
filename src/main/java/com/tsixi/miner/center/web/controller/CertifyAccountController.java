@@ -12,6 +12,7 @@ import org.alan.mars.config.NodeConfig;
 import org.alan.mars.curator.MarsNode;
 import org.alan.mars.curator.NodeManager;
 import org.alan.mars.curator.NodeType;
+import org.alan.mars.data.UserInfo;
 import org.alan.mars.uid.UidDao;
 import org.alan.mars.uid.UidTypeEnum;
 import com.tsixi.miner.center.config.TsdkConfig;
@@ -24,6 +25,7 @@ import org.alan.utils.MD5Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -122,6 +124,19 @@ public class CertifyAccountController {
         data.put("token", token);
         data.put("accountId", accountId);
         data.put("logicServer", config.getTcpAddress());
+
+        HashOperations<String, String, UserInfo> hashOperations = redisTemplate.opsForHash();
+        UserInfo userData = hashOperations.get(UserInfo.USER_INFO, token);
+        if (userData == null) {
+            userData = new UserInfo();
+            userData.token = token;
+        }
+        userData.userId = accountId;
+        userData.userName = userName;
+        userData.logicAddress = config.getTcpAddress();
+        userData.online = true;
+        hashOperations.put(UserInfo.USER_INFO, token, userData);
+
         log.info("账号验证成功,返回状态码 {}", state);
         // 将玩家的登陆数据缓存到redis中，方便其他服务器进行验证
         redisTemplate.opsForValue().set(token, data, 60, TimeUnit.MINUTES);
